@@ -142,13 +142,19 @@ export default ({
   const fontSize = squareSize / 4;
   return (
     <svg viewBox="0 0 200 800">
-      <g>
-        [...Array(7).keys()].map(i => (
-          <text x={0} y={0} fontSize={fontSize} fill={weekDaysColor} dominantBaseline="hanging">
-          Sun
-          </text>
-        ))
-      </g>
+
+      {/* WeekDays */}
+      {weekDays &&
+        <g>
+          {[...Array(7).keys()].map(i => (  // 7 days in a week
+            <text x={1 + i * (squareSize + gutterSize)} y={0} fontSize={fontSize} fill={weekDaysColor} dominantBaseline="hanging">
+              {weekDays[i]}
+            </text>
+          ))}
+        </g>
+      }
+
+      {/* Days Squares  */}
       <g transform={`translate(0,${fontSize + 2})`}>
         {renderDays(start, end, squareSize, gutterSize, dayColor, dayNumberColor, fontSize)}
       </g>

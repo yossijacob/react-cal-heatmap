@@ -10,7 +10,11 @@ class App extends Component {
     const end = new Date(2018, 0, 11);
     return (
       <div className="App">
-        <CalHeatmap start={start} end={end}/>
+        <CalHeatmap
+          start={start}
+          end={end}
+          // weekDays={{}}
+        />
       </div>
     );
   }
