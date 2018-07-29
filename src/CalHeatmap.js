@@ -1,32 +1,52 @@
 import React, { Component } from 'react'
+import { start } from 'pretty-error';
 
 export default class CalHeatmap extends Component {
-  dateRange() {
-    const startDate = new Date();
-    const endDate = new Date(2018, 0, 11);
+  dateRange(startDate, endDate) {
     const days = [];
-    const delta = endDate >= startDate ? 1 : -1;
-    for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + delta)) {
-      days.push(new Date(d));
+    if (endDate >= startDate) {
+      for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+        days.push(new Date(d));
+      }
+    } else {  // reverse
+      for (let d = new Date(startDate); d >= endDate; d.setDate(d.getDate() - 1)) {
+        days.push(new Date(d));
+      }
     }
     return days;
   }
 
   dayColor(day) {
-    return 'whitesmoke'
+    return this.DAY_COLOR || 'whitesmoke'
+  }
+
+  dayNumberColor(day) {
+    return this.DAY_NUMBER_COLOR || '#dddddd'
+  }
+
+  squareSize() {
+    return this.SQUARE_SIZE || 20
   }
 
   renderDays() {
-    const dayColor = '#dddddd'
-    const squareSize = 20;
-    const fontSize = squareSize / 4 ;
+    const start = new Date();
+    const end = new Date(2018, 0, 11);
+    // const start =new Date(2018, 0, 11);
+    // const end =  new Date();
+    const reversed = end < start;
+    const squareSize = this.squareSize();
+    const fontSize = squareSize / 4;
     const gutterSize = 1;
     const squareWithGutterSize = squareSize + gutterSize;
-    return this.dateRange().map((d, idx) => {
-      const xOffset = squareWithGutterSize * (idx % 7);
-      const yOffset = squareWithGutterSize * parseInt(idx / 7, 10);
+    const firstDayOffset = start.getDay(); // day of the week for start date
+    let index = reversed ? 6 - firstDayOffset : firstDayOffset;
+    return this.dateRange(start, end).map((d) => {
+      let xOffset = squareWithGutterSize * (index % 7);
+      xOffset = reversed ? 6 * (squareSize + gutterSize) - xOffset : xOffset; // for reversed go from right to left
+      const yOffset = squareWithGutterSize * parseInt(index / 7, 10);
+      index++;
       return (
-        <g>
+        <g key={index-1}>
           <rect
             width={squareSize}
             height={squareSize}
@@ -35,7 +55,12 @@ export default class CalHeatmap extends Component {
             fill={this.dayColor(d)}
           >
           </rect>
-          <text x={xOffset+1} y={yOffset+1} font-size={fontSize} fill={dayColor} dominant-baseline="hanging">
+          <text
+            x={xOffset + 1}
+            y={yOffset + 1}
+            fontSize={fontSize}
+            fill={this.dayNumberColor(d)}
+            dominantBaseline="hanging">
             {d.getDate()}
           </text>
         </g>
