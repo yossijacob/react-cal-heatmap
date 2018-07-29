@@ -96,9 +96,8 @@ const dateRange = (startDate, endDate) => {
   return days;
 }
 
-const renderDays = (start, end, squareSize, gutterSize, dayColor, dayNumberColor) => { 
+const renderDays = (start, end, squareSize, gutterSize, dayColor, dayNumberColor, fontSize) => {
   const reversed = end < start;
-  const fontSize = squareSize / 4;
   const squareWithGutterSize = squareSize + gutterSize;
   const firstDayOffset = start.getDay(); // day of the week for start date
   let index = reversed ? 6 - firstDayOffset : firstDayOffset;
@@ -130,17 +129,29 @@ const renderDays = (start, end, squareSize, gutterSize, dayColor, dayNumberColor
   })
 }
 
-export default ({ 
-  start, 
-  end, 
-  squareSize = 20, 
+export default ({
+  start,
+  end,
+  squareSize = 20,
   gutterSize = 1,
   dayColor = (d) => 'whitesmoke',
-  dayNumberColor = (d) => '#dddddd'
+  dayNumberColor = (d) => '#dddddd',
+  weekDaysColor = '#dddddd',
+  weekDays = { 0: 'Sun', 1: 'Mon', 2: 'Tue', 3: 'Wed', 4: 'Thu', 5: 'Fri', 6: 'Sat' }
 }) => {
+  const fontSize = squareSize / 4;
   return (
     <svg viewBox="0 0 200 800">
-      {renderDays(start, end , squareSize, gutterSize, dayColor, dayNumberColor)}
+      <g>
+        [...Array(7).keys()].map(i => (
+          <text x={0} y={0} fontSize={fontSize} fill={weekDaysColor} dominantBaseline="hanging">
+          Sun
+          </text>
+        ))
+      </g>
+      <g transform={`translate(0,${fontSize + 2})`}>
+        {renderDays(start, end, squareSize, gutterSize, dayColor, dayNumberColor, fontSize)}
+      </g>
     </svg>
   )
 }
