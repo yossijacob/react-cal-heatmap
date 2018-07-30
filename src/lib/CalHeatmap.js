@@ -19,13 +19,13 @@ export default class CalHeatmap extends Component {
     this.state.normalizedData = this.normalizeData();
   }
 
-  dayColor = (d) => {
-    const count = this.state.normalizedData[d.getTime()];
+  dayColor = (d, count) => {
     const color = {
-      0:'whitesmoke',
-      1:'lightgreen',
-      2:'green'
-    }[count] || 'black';
+      0:'#fafafa',
+      1:'#c6e48b',
+      2:'#7bc96f',
+      3:'#239a3b',
+    }[count] || '#196127';
     return color; 
   }
 
@@ -69,6 +69,7 @@ export default class CalHeatmap extends Component {
       let xOffset = squareWithGutterSize * (index % 7);
       xOffset = reversed ? 6 * (squareSize + gutterSize) - xOffset : xOffset; // for reversed go from right to left
       const yOffset = squareWithGutterSize * parseInt(index / 7, 10);
+      const countForDay = this.state.normalizedData[d.getTime()]; // value for day
       index++;
       return (
         <g key={index - 1}>
@@ -77,7 +78,7 @@ export default class CalHeatmap extends Component {
             height={squareSize}
             x={xOffset}
             y={yOffset}
-            fill={dayColor(d)}
+            fill={dayColor(d, countForDay)}
           >
           </rect>
           <text
