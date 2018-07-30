@@ -1,6 +1,6 @@
 {
-  "name": "react-cal-heatmap",
-  "version": "0.1",
+  "name": "reactjs-heatmap-calendar",
+  "version": "0.1.0",
   "description": "React Calander Heatmap",
   "main": "build/index.js",
   "scripts": {

@@ -1,163 +1,197 @@
 import React, { Component } from 'react'
 
-// export default class CalHeatmap extends Component {
-//   constructor(props) {
-//     super(props);
-//     this.state = {
-//       ...props,
-//       reversed: props.end < props.start,
-//     };
-//     console.log(this.state);
-//   }
+export default class CalHeatmap extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      start: props.start,
+      end: props.end,
+      data: props.data,
+      squareSize: props.squareSize || 20,
+      gutterSize: props.gutterSize || 1,
+      weekDayColor: props.weekDayColor || '#dddddd',
+      weekDays: { 0: 'Sun', 1: 'Mon', 2: 'Tue', 3: 'Wed', 4: 'Thu', 5: 'Fri', 6: 'Sat' },
+      dayColor: props.dayColor || this.dayColor,
+      dayNumberColor: (d) => '#dddddd',
+      reversed: props.end < props.start,
+    };
+    this.state.fontSize = this.state.squareSize / 4;
+    this.state.normalizedData = this.normalizeData();
+  }
 
-//   dateRange(startDate, endDate) {
-//     const days = [];
-//     if (endDate >= startDate) {
-//       for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
-//         days.push(new Date(d));
-//       }
-//     } else {  // reverse
-//       for (let d = new Date(startDate); d >= endDate; d.setDate(d.getDate() - 1)) {
-//         days.push(new Date(d));
-//       }
+  dayColor = (d) => {
+    const count = this.state.normalizedData[d.getTime()];
+    const color = {
+      0:'whitesmoke',
+      1:'lightgreen',
+      2:'green'
+    }[count] || 'black';
+    return color; 
+  }
+
+  normalizeData() {
+    const {data} = this.state;
+    const normalized = new Proxy({}, {
+      get: (target, name) => name in target ? target[name] : 0
+    });
+    data.forEach(d => {
+      const current = new Date(d.timestamp * 1000).setHours(0, 0, 0, 0);
+      // console.log(d.timestamp, new Date(d.timestamp * 1000));
+      const delta = d.count || 1;
+      normalized[current] +=delta;
+    });
+    return normalized;
+  }
+
+  dateRange() {
+    const { start, end } = this.state;
+    const days = [];
+    let d = new Date(start);
+    d.setHours(0, 0, 0, 0);
+    if (end >= start) {
+      for (; d <= end; d.setDate(d.getDate() + 1)) {
+        days.push(new Date(d));
+      }
+    } else {  // reverse
+      for (; d >= end; d.setDate(d.getDate() - 1)) {
+        days.push(new Date(d));
+      }
+    }
+    return days;
+  }
+
+  renderDays() {
+    const { start, reversed, squareSize, fontSize, gutterSize, dayColor, dayNumberColor } = this.state;
+    const squareWithGutterSize = squareSize + gutterSize;
+    const firstDayOffset = start.getDay(); // day of the week for start date
+    let index = reversed ? 6 - firstDayOffset : firstDayOffset;
+    return this.dateRange().map((d) => {
+      let xOffset = squareWithGutterSize * (index % 7);
+      xOffset = reversed ? 6 * (squareSize + gutterSize) - xOffset : xOffset; // for reversed go from right to left
+      const yOffset = squareWithGutterSize * parseInt(index / 7, 10);
+      index++;
+      return (
+        <g key={index - 1}>
+          <rect
+            width={squareSize}
+            height={squareSize}
+            x={xOffset}
+            y={yOffset}
+            fill={dayColor(d)}
+          >
+          </rect>
+          <text
+            x={xOffset + 1}
+            y={yOffset + 1}
+            fontSize={fontSize}
+            fill={dayNumberColor(d)}
+            dominantBaseline="hanging">
+            {d.getDate()}
+          </text>
+        </g>
+      )
+    })
+  }
+
+  render() {
+    const { gutterSize, fontSize, weekDayColor, weekDays, squareSize } = this.state;
+    return (
+      <svg viewBox="0 0 200 800">
+        {/* WeekDays */}
+        {weekDays &&
+          <g>
+            {[...Array(7).keys()].map(i => (  // 7 days in a week
+              <text key={i} x={1 + i * (squareSize + gutterSize)} y={0} fontSize={fontSize} fill={weekDayColor} dominantBaseline="hanging">
+                {weekDays[i]}
+              </text>
+            ))}
+          </g>
+        }
+        {/* Days Squares  */}
+        <g transform={`translate(0,${fontSize + 2})`}>
+          {this.renderDays()}
+        </g>
+      </svg>
+    )
+  }
+}
+
+// const dateRange = (startDate, endDate) => {
+//   const days = [];
+//   if (endDate >= startDate) {
+//     for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+//       days.push(new Date(d));
 //     }
-//     return days;
+//   } else {  // reverse
+//     for (let d = new Date(startDate); d >= endDate; d.setDate(d.getDate() - 1)) {
+//       days.push(new Date(d));
+//     }
 //   }
-
-//   dayColor(day) {
-//     return this.DAY_COLOR || 'whitesmoke'
-//   }
-
-//   dayNumberColor(day) {
-//     return this.DAY_NUMBER_COLOR || '#dddddd'
-//   }
-
-//   squareSize() {
-//     return this.SQUARE_SIZE || 20
-//   }
-
-//   renderDays() {
-//     const { start, end, reversed } = this.state;
-//     const squareSize = this.squareSize();
-//     const fontSize = squareSize / 4;
-//     const gutterSize = 1;
-//     const squareWithGutterSize = squareSize + gutterSize;
-//     const firstDayOffset = start.getDay(); // day of the week for start date
-//     let index = reversed ? 6 - firstDayOffset : firstDayOffset;
-//     return this.dateRange(start, end).map((d) => {
-//       let xOffset = squareWithGutterSize * (index % 7);
-//       xOffset = reversed ? 6 * (squareSize + gutterSize) - xOffset : xOffset; // for reversed go from right to left
-//       const yOffset = squareWithGutterSize * parseInt(index / 7, 10);
-//       index++;
-//       return (
-//         <g key={index - 1}>
-//           <rect
-//             width={squareSize}
-//             height={squareSize}
-//             x={xOffset}
-//             y={yOffset}
-//             fill={this.dayColor(d)}
-//           >
-//           </rect>
-//           <text
-//             x={xOffset + 1}
-//             y={yOffset + 1}
-//             fontSize={fontSize}
-//             fill={this.dayNumberColor(d)}
-//             dominantBaseline="hanging">
-//             {d.getDate()}
-//           </text>
-//         </g>
-//       )
-//     })
-//   }
-
-//   render() {
-
-//     return (
-//       <svg viewBox="0 0 200 800">
-//         {this.renderDays()}
-//       </svg>
-//     )
-//   }
+//   return days;
 // }
 
-const dateRange = (startDate, endDate) => {
-  const days = [];
-  if (endDate >= startDate) {
-    for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
-      days.push(new Date(d));
-    }
-  } else {  // reverse
-    for (let d = new Date(startDate); d >= endDate; d.setDate(d.getDate() - 1)) {
-      days.push(new Date(d));
-    }
-  }
-  return days;
-}
+// const renderDays = (start, end, squareSize, gutterSize, dayColor, dayNumberColor, fontSize) => {
+//   const reversed = end < start;
+//   const squareWithGutterSize = squareSize + gutterSize;
+//   const firstDayOffset = start.getDay(); // day of the week for start date
+//   let index = reversed ? 6 - firstDayOffset : firstDayOffset;
+//   return dateRange(start, end).map((d) => {
+//     let xOffset = squareWithGutterSize * (index % 7);
+//     xOffset = reversed ? 6 * (squareSize + gutterSize) - xOffset : xOffset; // for reversed go from right to left
+//     const yOffset = squareWithGutterSize * parseInt(index / 7, 10);
+//     index++;
+//     return (
+//       <g key={index - 1}>
+//         <rect
+//           width={squareSize}
+//           height={squareSize}
+//           x={xOffset}
+//           y={yOffset}
+//           fill={dayColor(d)}
+//         >
+//         </rect>
+//         <text
+//           x={xOffset + 1}
+//           y={yOffset + 1}
+//           fontSize={fontSize}
+//           fill={dayNumberColor(d)}
+//           dominantBaseline="hanging">
+//           {d.getDate()}
+//         </text>
+//       </g>
+//     )
+//   })
+// }
 
-const renderDays = (start, end, squareSize, gutterSize, dayColor, dayNumberColor, fontSize) => {
-  const reversed = end < start;
-  const squareWithGutterSize = squareSize + gutterSize;
-  const firstDayOffset = start.getDay(); // day of the week for start date
-  let index = reversed ? 6 - firstDayOffset : firstDayOffset;
-  return dateRange(start, end).map((d) => {
-    let xOffset = squareWithGutterSize * (index % 7);
-    xOffset = reversed ? 6 * (squareSize + gutterSize) - xOffset : xOffset; // for reversed go from right to left
-    const yOffset = squareWithGutterSize * parseInt(index / 7, 10);
-    index++;
-    return (
-      <g key={index - 1}>
-        <rect
-          width={squareSize}
-          height={squareSize}
-          x={xOffset}
-          y={yOffset}
-          fill={dayColor(d)}
-        >
-        </rect>
-        <text
-          x={xOffset + 1}
-          y={yOffset + 1}
-          fontSize={fontSize}
-          fill={dayNumberColor(d)}
-          dominantBaseline="hanging">
-          {d.getDate()}
-        </text>
-      </g>
-    )
-  })
-}
+// export default ({
+//   start,
+//   end,
+//   squareSize = 20,
+//   gutterSize = 1,
+//   dayColor = (d) => 'whitesmoke',
+//   dayNumberColor = (d) => '#dddddd',
+//   weekDaysColor = '#dddddd',
+//   weekDays = { 0: 'Sun', 1: 'Mon', 2: 'Tue', 3: 'Wed', 4: 'Thu', 5: 'Fri', 6: 'Sat' }
+// }) => {
+//   const fontSize = squareSize / 4;
+//   return (
+//     <svg viewBox="0 0 200 800">
 
-export default ({
-  start,
-  end,
-  squareSize = 20,
-  gutterSize = 1,
-  dayColor = (d) => 'whitesmoke',
-  dayNumberColor = (d) => '#dddddd',
-  weekDaysColor = '#dddddd',
-  weekDays = { 0: 'Sun', 1: 'Mon', 2: 'Tue', 3: 'Wed', 4: 'Thu', 5: 'Fri', 6: 'Sat' }
-}) => {
-  const fontSize = squareSize / 4;
-  return (
-    <svg viewBox="0 0 200 800">
+//       {/* WeekDays */}
+//       {weekDays &&
+//         <g>
+//           {[...Array(7).keys()].map(i => (  // 7 days in a week
+//             <text x={1 + i * (squareSize + gutterSize)} y={0} fontSize={fontSize} fill={weekDaysColor} dominantBaseline="hanging">
+//               {weekDays[i]}
+//             </text>
+//           ))}
+//         </g>
+//       }
 
-      {/* WeekDays */}
-      {weekDays &&
-        <g>
-          {[...Array(7).keys()].map(i => (  // 7 days in a week
-            <text x={1 + i * (squareSize + gutterSize)} y={0} fontSize={fontSize} fill={weekDaysColor} dominantBaseline="hanging">
-              {weekDays[i]}
-            </text>
-          ))}
-        </g>
-      }
-
-      {/* Days Squares  */}
-      <g transform={`translate(0,${fontSize + 2})`}>
-        {renderDays(start, end, squareSize, gutterSize, dayColor, dayNumberColor, fontSize)}
-      </g>
-    </svg>
-  )
-}
+//       {/* Days Squares  */}
+//       <g transform={`translate(0,${fontSize + 2})`}>
+//         {renderDays(start, end, squareSize, gutterSize, dayColor, dayNumberColor, fontSize)}
+//       </g>
+//     </svg>
+//   )
+// }
