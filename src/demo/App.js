@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import './App.css';
-import CalHeatmap from './CalHeatmap'
+import CalHeatmap from '../lib';
 
 class App extends Component {
   render() {
@@ -21,3 +21,4 @@ class App extends Component {
 }
 
 export default App;
+
