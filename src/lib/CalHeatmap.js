@@ -1,5 +1,7 @@
 import React, { Component } from 'react'
 
+const WEEK_SIZE = 7;
+
 export default class CalHeatmap extends Component {
   constructor(props) {
     super(props);
@@ -64,11 +66,11 @@ export default class CalHeatmap extends Component {
     const { start, reversed, squareSize, fontSize, gutterSize, dayColor, dayNumberColor } = this.state;
     const squareWithGutterSize = squareSize + gutterSize;
     const firstDayOffset = start.getDay(); // day of the week for start date
-    let index = reversed ? 6 - firstDayOffset : firstDayOffset;
+    let index = reversed ? (WEEK_SIZE-1) - firstDayOffset : firstDayOffset;
     return this.dateRange().map((d) => {
-      let xOffset = squareWithGutterSize * (index % 7);
-      xOffset = reversed ? 6 * (squareSize + gutterSize) - xOffset : xOffset; // for reversed go from right to left
-      const yOffset = squareWithGutterSize * parseInt(index / 7, 10);
+      let xOffset = squareWithGutterSize * (index % WEEK_SIZE);
+      xOffset = reversed ? (WEEK_SIZE-1) * (squareSize + gutterSize) - xOffset : xOffset; // for reversed go from right to left
+      const yOffset = squareWithGutterSize * parseInt(index / WEEK_SIZE, 10);
       const countForDay = this.state.normalizedData[d.getTime()]; // value for day
       index++;
       return (
@@ -101,7 +103,7 @@ export default class CalHeatmap extends Component {
         {/* WeekDays */}
         {weekDays &&
           <g>
-            {[...Array(7).keys()].map(i => (  // 7 days in a week
+            {[...Array(WEEK_SIZE).keys()].map(i => (  // 7 days in a week
               <text key={i} x={1 + i * (squareSize + gutterSize)} y={0} fontSize={fontSize} fill={weekDayColor} dominantBaseline="hanging">
                 {weekDays[i]}
               </text>
