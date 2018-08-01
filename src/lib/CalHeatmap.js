@@ -64,23 +64,36 @@ export default class CalHeatmap extends Component {
     return days;
   }
 
-  renderMonthLabel(d, yOffset) {
-    const { squareSize, fontSize, gutterSize, dayNumberColor } = this.state;
-    const showMonthLabel = ((d.getDay() === WEEK_LAST_DAY) && (d.getDate() <= WEEK_SIZE));
-    if (!showMonthLabel){
+  renderMonthLabel(d, xOffset, yOffset) {
+    const { squareSize, fontSize, dayNumberColor } = this.state;
+    const showMonthLabel = (d.getDate() === 1);
+    if (!showMonthLabel) {
       return null;
     }
-    const xOffset = (squareSize +gutterSize) * 6;
+    const showYear = (d.getMonth() === 0 || d.getMonth() === 5)
     return (
-      <text
-        x={xOffset}
-        y={yOffset + fontSize}
-        fontSize={fontSize + 5}
-        fill={dayNumberColor(d)}
-        dominantBaseline="hanging"
-      >
-        {MONTHES[d.getMonth()]}
-      </text>
+      <React.Fragment>
+        <text
+          x={xOffset}
+          y={yOffset + fontSize}
+          fontSize={fontSize + 5}
+          fill={dayNumberColor(d)}
+          dominantBaseline="hanging"
+        >
+          {MONTHES[d.getMonth()]}
+        </text>
+        { showYear &&
+          <text
+          x={xOffset}
+          y={yOffset + squareSize - fontSize}
+          fontSize={fontSize}
+          fill={dayNumberColor(d)}
+          dominantBaseline="hanging"
+        >
+          {d.getFullYear()}
+        </text>
+        }
+      </React.Fragment>
     )
   }
 
@@ -97,13 +110,13 @@ export default class CalHeatmap extends Component {
       const countForDay = this.state.normalizedData[d.getTime()]; // value for day      
 
       // check if it is last day of the week on the middle of the month
-      if ((d.getDay() === WEEK_LAST_DAY) && (0 < (d.getDate() - 15) < 8)) {
-        console.log(MONTHES[d.getMonth()]);
-      }
-      // const showMonthLabel = ((d.getDay() === WEEK_LAST_DAY) && (d.getDate() >= 15) && (d.getDate() < 15 + WEEK_SIZE));
-      const showMonthLabel = ((d.getDay() === WEEK_LAST_DAY) && (d.getDate() <= WEEK_SIZE));
-      // check if first day of year
-      const showYearLabel = ((d.getDay() === WEEK_LAST_DAY) && (d.getMonth() === 0) && (d.getDate() <= 7));
+      // if ((d.getDay() === WEEK_LAST_DAY) && (0 < (d.getDate() - 15) < 8)) {
+      //   console.log(MONTHES[d.getMonth()]);
+      // }
+      // // const showMonthLabel = ((d.getDay() === WEEK_LAST_DAY) && (d.getDate() >= 15) && (d.getDate() < 15 + WEEK_SIZE));
+      // const showMonthLabel = ((d.getDay() === WEEK_LAST_DAY) && (d.getDate() <= WEEK_SIZE));
+      // // check if first day of year
+      // const showYearLabel = ((d.getDay() === WEEK_LAST_DAY) && (d.getMonth() === 0) && (d.getDate() <= 7));
 
       index++;
       return (
@@ -124,7 +137,7 @@ export default class CalHeatmap extends Component {
             dominantBaseline="hanging">
             {d.getDate()}
           </text>
-          {this.renderMonthLabel(d,yOffset)}
+          {this.renderMonthLabel(d, xOffset, yOffset)}
           {/* {showMonthLabel &&
             <text
               x={xOffset + squareSize + gutterSize * 4}
