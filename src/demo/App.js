@@ -7,7 +7,7 @@ class App extends Component {
     // const start =new Date(2018, 0, 11);
     // const end =  new Date();
     const start = new Date();
-    const end = new Date(2018, 0, 11);
+    const end = new Date(2017, 11, 20);
     const data =[
       {timestamp:1532290177},
       {timestamp:1532252573},
