@@ -3,7 +3,7 @@
 This is a small package to show a heat map calander, like the one Github uses for their contribuation calander.
 It orientation is vertical so it fits mobile devices well.
 
-###### Installation
+## Installation
 
 ```
 yarn add reactjs-heatmap-calendar
