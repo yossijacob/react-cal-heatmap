@@ -138,28 +138,6 @@ export default class CalHeatmap extends Component {
             {d.getDate()}
           </text>
           {this.renderMonthLabel(d, xOffset, yOffset)}
-          {/* {showMonthLabel &&
-            <text
-              x={xOffset + squareSize + gutterSize * 4}
-              y={yOffset + fontSize}
-              fontSize={fontSize + 5}
-              fill={dayNumberColor(d)}
-              dominantBaseline="hanging"
-            >
-              {MONTHES[d.getMonth()]}
-            </text> 
-          }
-          {showYearLabel &&
-            <text
-              x={xOffset + squareSize+gutterSize*4}
-              y={yOffset + fontSize}
-              fontSize={fontSize+5}
-              fill={dayNumberColor(d)}
-              dominantBaseline="hanging"
-              >
-              {d.getFullYear()  }
-            </text> */}
-          }
         </g>
       )
     })
@@ -167,8 +145,9 @@ export default class CalHeatmap extends Component {
 
   render() {
     const { gutterSize, fontSize, weekDayColor, weekDays, squareSize } = this.state;
+    const width = 7*(squareSize + gutterSize);
     return (
-      <svg viewBox="0 0 200 800">
+      <svg viewBox={`0 0 ${width} 800`}>
         {/* WeekDays */}
         {weekDays &&
           <g>
