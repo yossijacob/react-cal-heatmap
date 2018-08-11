@@ -102,6 +102,7 @@ export default class CalHeatmap extends Component {
     const squareWithGutterSize = squareSize + gutterSize;
     const firstDayOffset = start.getDay(); // day of the week for start date
     let index = reversed ? (WEEK_SIZE - 1) - firstDayOffset : firstDayOffset; // add offset for first day
+
     return days.map((d) => {
       // calculate x and y offsets
       let xOffset = squareWithGutterSize * (index % WEEK_SIZE);
@@ -134,10 +135,24 @@ export default class CalHeatmap extends Component {
     })
   }
 
+  moreThanOneHalfFilledWeek() {
+    const { days, reversed } = this.state;
+    const outOfWeekDays = days.length % 7;  // days out of full weeks
+    console.log('outOfWeekDays', outOfWeekDays);
+    const firstDayOffset = days[0].getDay(); // day of the week for start date
+    console.log('firstDayOffset', firstDayOffset);
+    const daysInFirstWeek = reversed ? 1 + firstDayOffset : 7 - firstDayOffset;
+    console.log('daysInFirstWeek', daysInFirstWeek);
+    const daysInLastWeek = outOfWeekDays - daysInFirstWeek;
+    console.log('daysInLastWeek', daysInLastWeek);
+    return daysInLastWeek > 0 ? 1 : 0;
+  }
+
   render() {
     const { gutterSize, fontSize, weekDayColor, weekDays, squareSize, days } = this.state;
     const width = 7 * (squareSize + gutterSize);
-    const height = (days.length / 7) * (squareSize + gutterSize) + squareSize;
+    const weekCount = Math.ceil(days.length / 7) + this.moreThanOneHalfFilledWeek();
+    const height = weekCount * (squareSize + gutterSize) + squareSize;
     return (
       <svg viewBox={`0 0 ${width} ${height}`}>
         {/* WeekDays */}
