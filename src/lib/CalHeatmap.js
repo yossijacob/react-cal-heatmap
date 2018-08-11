@@ -138,13 +138,10 @@ export default class CalHeatmap extends Component {
   moreThanOneHalfFilledWeek() {
     const { days, reversed } = this.state;
     const outOfWeekDays = days.length % 7;  // days out of full weeks
-    console.log('outOfWeekDays', outOfWeekDays);
     const firstDayOffset = days[0].getDay(); // day of the week for start date
-    console.log('firstDayOffset', firstDayOffset);
     const daysInFirstWeek = reversed ? 1 + firstDayOffset : 7 - firstDayOffset;
-    console.log('daysInFirstWeek', daysInFirstWeek);
-    const daysInLastWeek = outOfWeekDays - daysInFirstWeek;
-    console.log('daysInLastWeek', daysInLastWeek);
+    if (daysInFirstWeek === 7) return 0;
+    const daysInLastWeek = outOfWeekDays - (daysInFirstWeek % 7);
     return daysInLastWeek > 0 ? 1 : 0;
   }
 
