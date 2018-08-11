@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 
 const WEEK_SIZE = 7;
-const WEEK_LAST_DAY = 6;
 const MONTHES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 export default class CalHeatmap extends Component {
@@ -21,6 +20,7 @@ export default class CalHeatmap extends Component {
     };
     this.state.fontSize = this.state.squareSize / 4;
     this.state.normalizedData = this.normalizeData();
+    this.state.days = this.dateRange();
   }
 
   dayColor = (d, count) => {
@@ -82,41 +82,32 @@ export default class CalHeatmap extends Component {
         >
           {MONTHES[d.getMonth()]}
         </text>
-        { showYear &&
+        {showYear &&
           <text
-          x={xOffset}
-          y={yOffset + squareSize - fontSize}
-          fontSize={fontSize}
-          fill={dayNumberColor(d)}
-          dominantBaseline="hanging"
-        >
-          {d.getFullYear()}
-        </text>
+            x={xOffset}
+            y={yOffset + squareSize - fontSize}
+            fontSize={fontSize}
+            fill={dayNumberColor(d)}
+            dominantBaseline="hanging"
+          >
+            {d.getFullYear()}
+          </text>
         }
       </React.Fragment>
     )
   }
 
   renderDays() {
-    const { start, reversed, squareSize, fontSize, gutterSize, dayColor, dayNumberColor } = this.state;
+    const { start, reversed, squareSize, fontSize, gutterSize, dayColor, dayNumberColor, days } = this.state;
     const squareWithGutterSize = squareSize + gutterSize;
     const firstDayOffset = start.getDay(); // day of the week for start date
     let index = reversed ? (WEEK_SIZE - 1) - firstDayOffset : firstDayOffset; // add offset for first day
-    return this.dateRange().map((d) => {
+    return days.map((d) => {
       // calculate x and y offsets
       let xOffset = squareWithGutterSize * (index % WEEK_SIZE);
       xOffset = reversed ? (WEEK_SIZE - 1) * (squareSize + gutterSize) - xOffset : xOffset; // for reversed go from right to left
       const yOffset = squareWithGutterSize * parseInt(index / WEEK_SIZE, 10);
       const countForDay = this.state.normalizedData[d.getTime()]; // value for day      
-
-      // check if it is last day of the week on the middle of the month
-      // if ((d.getDay() === WEEK_LAST_DAY) && (0 < (d.getDate() - 15) < 8)) {
-      //   console.log(MONTHES[d.getMonth()]);
-      // }
-      // // const showMonthLabel = ((d.getDay() === WEEK_LAST_DAY) && (d.getDate() >= 15) && (d.getDate() < 15 + WEEK_SIZE));
-      // const showMonthLabel = ((d.getDay() === WEEK_LAST_DAY) && (d.getDate() <= WEEK_SIZE));
-      // // check if first day of year
-      // const showYearLabel = ((d.getDay() === WEEK_LAST_DAY) && (d.getMonth() === 0) && (d.getDate() <= 7));
 
       index++;
       return (
@@ -144,10 +135,11 @@ export default class CalHeatmap extends Component {
   }
 
   render() {
-    const { gutterSize, fontSize, weekDayColor, weekDays, squareSize } = this.state;
-    const width = 7*(squareSize + gutterSize);
+    const { gutterSize, fontSize, weekDayColor, weekDays, squareSize, days } = this.state;
+    const width = 7 * (squareSize + gutterSize);
+    const height = (days.length / 7) * (squareSize + gutterSize) + squareSize;
     return (
-      <svg viewBox={`0 0 ${width} 800`}>
+      <svg viewBox={`0 0 ${width} ${height}`}>
         {/* WeekDays */}
         {weekDays &&
           <g>
