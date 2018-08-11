@@ -26,10 +26,10 @@ export default class CalHeatmap extends Component {
   dayColor = (d, count) => {
     const color = {
       0: '#fafafa',
-      1: '#c6e48b',
-      2: '#7bc96f',
-      3: '#239a3b',
-    }[count] || '#196127';
+      1: '#ef9a9a',
+      2: '#f44336',
+      3: '#ba000d',
+    }[count] || '#ba000d';  // rest of
     return color;
   }
 
